@@ -7,8 +7,9 @@ pragma solidity ^0.8.0;
  * That's why we are using our own ERC20 interface.
  */
 interface IERC20Cutted {
-    
+
     function transfer(address recipient, uint256 amount) external;
     function balanceOf(address account) external view returns (uint256);
-    
+    function burn(uint256 amount) external;
+
 }
