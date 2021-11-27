@@ -7,7 +7,7 @@ import "./interfaces/IERC20Cutted.sol";
 import "./RecoverableFunds.sol";
 import "./StagedCrowdsale.sol";
 
-contract CommonSale is Pausable, StagedCrowdsale, RecoverableFunds {
+contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
 
     using SafeMath for uint256;
 
@@ -116,9 +116,11 @@ contract CommonSale is Pausable, StagedCrowdsale, RecoverableFunds {
     function withdraw() public whenNotPaused returns (uint256) {
         uint256 tokens;
         for (uint256 stageIndex = 0; stageIndex < stages.length; stageIndex++) {
+            Stage memory stage = stages[stageIndex];
+            if (!stage.finished) continue;
             Balance storage balance = balances[stageIndex][msg.sender];
             if (balance.initial == 0) continue;
-            uint8 scheduleIndex = stages[stageIndex].vestingSchedule;
+            uint8 scheduleIndex = stage.vestingSchedule;
             VestingSchedule memory schedule = vestingSchedules[scheduleIndex];
             uint256 vestedAmount = calculateVestedAmount(balance, schedule);
             if (vestedAmount == 0) continue;
