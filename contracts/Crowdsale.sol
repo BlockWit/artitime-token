@@ -37,7 +37,6 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
     uint256 public price; // amount of tokens per 1 ETH
     uint256 public invested;
     uint256 public percentRate = 100;
-    address payable public wallet;
 
     mapping(uint256 => mapping(address => Balance)) public balances;
     mapping(uint8 => VestingSchedule) public vestingSchedules;
@@ -48,10 +47,6 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
 
     function setPercentRate(uint256 newPercentRate) public onlyOwner {
         percentRate = newPercentRate;
-    }
-
-    function setWallet(address payable newWallet) public onlyOwner {
-        wallet = newWallet;
     }
 
     function setPrice(uint256 newPrice) public onlyOwner {
