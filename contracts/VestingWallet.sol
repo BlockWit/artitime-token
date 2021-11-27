@@ -35,13 +35,6 @@ contract VestingWallet is Ownable, RecoverableFunds {
         _;
     }
 
-    constructor(address _beneficiary, uint256 _start, uint256 _duration, uint256 _interval) {
-        beneficiary = _beneficiary;
-        start = _start;
-        duration = _duration;
-        interval = _interval;
-    }
-
     function setBeneficiary(address newBeneficiary) public onlyOwner whenNotLocked {
         beneficiary = newBeneficiary;
     }
@@ -84,6 +77,11 @@ contract VestingWallet is Ownable, RecoverableFunds {
             withdrawnTokens = withdrawnTokens.add(tokensToWithdraw);
             token.transfer(msg.sender, tokensToWithdraw);
         }
+    }
+
+    function retrieveTokens(address recipient, address anotherToken) override public onlyOwner {
+        require(anotherToken != address(token), "VestingWallet: you can't retrieve tokens locked in this contract");
+        super.retrieveTokens(recipient, anotherToken);
     }
 
 }
