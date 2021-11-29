@@ -68,7 +68,7 @@ contract Configurator is RecoverableFunds {
         amounts[5] = 0;
 
         // create token
-        token = new ArtiTimeToken("Artitime", "ARTI", addresses, amounts);
+        token = new ArtiTimeToken();
         token.transferOwnership(owner);
 
         // finish sale configuration
