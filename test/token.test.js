@@ -6,20 +6,16 @@ const { shouldBehaveLikeERC20 } = require('./behaviors/ERC20.behavior');
 const { shouldBehaveLikeERC20Burnable } = require('./behaviors/ERC20Burnable.behavior');
 const { shouldBehaveLikeRecoverableFunds } = require('./behaviors/RecoverableFunds.behaviour');
 const { shouldBehaveLikeWithCallback } = require('./behaviors/WithCallback.behaviour');
+const transfer = require("@openzeppelin/cli/lib/scripts/transfer");
 
 const Token = contract.fromArtifact('ArtiTimeToken');
 
-const [account1, account2, account3, account4, account5, account6, account7, account8, owner ] = accounts;
+const [owner, account1, account2, account3] = accounts;
 const SUPPLY1 = ether('400000000');
 const SUPPLY2 = ether('250000000');
 const SUPPLY3 = ether('210000000');
-const SUPPLY4 = ether('200000000');
-const SUPPLY5 = ether('150000000');
-const SUPPLY6 = ether('150000000');
-const SUPPLY7 = ether('100000000');
-const SUPPLY8 = ether('40000000');
-const initialAccounts = [account1, account2, account3, account4, account5, account6, account7, account8];
-const initialBalances = [SUPPLY1, SUPPLY2, SUPPLY3, SUPPLY4, SUPPLY5, SUPPLY6, SUPPLY7, SUPPLY8];
+const initialAccounts = [account1, account2, account3];
+const initialBalances = [SUPPLY1, SUPPLY2, SUPPLY3];
 
 describe('ERC20', function () {
 
@@ -55,15 +51,10 @@ describe('Token', async function () {
   let token;
 
   beforeEach(async function() {
-    token = await Token.new('Token', 'TKN', initialAccounts, initialBalances, {from: owner});
-  })
+    token = await Token.new({from: owner});
+    await Promise.all(initialAccounts.map((account, i) => token.transfer(account, initialBalances[i], {from: owner})));
 
-  describe('total supply', function() {
-    it('returns the total amount of tokens', async function () {
-      const totalSupply = initialBalances.reduce((acc, val) => acc.add(val), ether('0'));
-      expect(await token.totalSupply()).to.be.bignumber.equal(totalSupply);
-    });
-  });
+  })
 
   describe('transfer', function() {
     it('works correctly', async function () {
