@@ -36,10 +36,19 @@ describe('ERC20', function () {
 describe('RecoverableFunds', function () {
 
   beforeEach(async function() {
-    this.testedContract = await Token.new('Token', 'TKN', [account1], [SUPPLY1], {from: owner});
+    this.testedContract = await Token.new({from: owner});
   })
 
   shouldBehaveLikeRecoverableFunds(owner, account2, account3);
+
+  describe('ArtiTimeToken', function () {
+    describe('retrieveTokens', function () {
+      it('should not allow to retrieve Arti tokens', async function () {
+        await expectRevert(this.testedContract.retrieveTokens(owner, this.testedContract.address, {from: owner}), "You can't retrieve tokens locked in this contract");
+      });
+    });
+  });
+
 });
 
 describe('Token', async function () {

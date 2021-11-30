@@ -9,8 +9,9 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+import "./RecoverableFunds.sol";
 
-contract ArtiTimeToken is Context, IERC20, Ownable {
+contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
     using SafeMath for uint256;
     using Address for address;
 
@@ -282,6 +283,11 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
 
     function restoreAllFees() public onlyOwner {
         _restoreAllFees();
+    }
+
+    function retrieveTokens(address recipient, address anotherToken) override public onlyOwner {
+        require(anotherToken != address(this), "You can't retrieve tokens locked in this contract");
+        super.retrieveTokens(recipient, anotherToken);
     }
 
     //to recieve ETH from uniswapV2Router when swaping
