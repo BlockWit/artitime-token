@@ -24,12 +24,11 @@ const initialBalances = [SUPPLY1, SUPPLY2, SUPPLY3, SUPPLY4, SUPPLY5, SUPPLY6, S
 describe('ERC20', function () {
 
   beforeEach(async function() {
-    this.token = await Token.new('Token', 'TKN', [account1], [SUPPLY1], {from: owner});
+    this.token = await Token.new({from: owner});
   })
 
-  shouldBehaveLikeERC20("ERC20", SUPPLY1, account1, account2, account3);
-  shouldBehaveLikeERC20Burnable(account1, SUPPLY1, [account2]);
-  shouldBehaveLikeWithCallback(owner, account1, account2, account3);
+  shouldBehaveLikeERC20("ERC20", ether('1000000000'), owner, account1, account2);
+  shouldBehaveLikeERC20Burnable(owner, ether('1000000000'), [account1]);
 
 });
 
