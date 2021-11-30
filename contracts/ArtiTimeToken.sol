@@ -165,11 +165,21 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         _tFeeTotal = _tFeeTotal.add(tAmount);
     }
 
-    function burn(address account, uint256 amount) public {
+    function burn(uint256 amount) public {
+        _burn(_msgSender(), amount);
+    }
+
+    function burnFrom(address account, uint256 amount) public {
+        uint256 currentAllowance = allowance(account, _msgSender());
+        require(currentAllowance >= amount, "ERC20: burn amount exceeds allowance");
+        _approve(account, _msgSender(), currentAllowance.sub(amount));
+        _burn(account, amount);
+    }
+
+    function _burn(address account, uint256 amount) internal {
         require(account != address(0), "ERC20: burn from the zero address");
-        require(_tOwned[account] >= amount, "ERC20: burn amount exceeds balance");
-        require(amount <= maxTxAmount, "Burn amount exceeds the maxTxAmount");
         (RVal memory r, TVal memory t) = _getValues(amount);
+        require(_rOwned[account] >= r.amount, "ERC20: burn amount exceeds balance");
         _decreaseBalance(account, t.amount, r.amount);
         _decreaseTotalSupply(t.amount, r.amount);
         emit Transfer(account, address(0), amount);
