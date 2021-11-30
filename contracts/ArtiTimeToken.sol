@@ -52,7 +52,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     address public uniswapV2Pair;
 
     bool inSwapAndLiquify;
-    bool public swapAndLiquifyEnabled = true;
+    bool public swapAndLiquifyEnabled;
 
     uint256 public maxTxAmount = 5_000_000 ether;
     uint256 private numTokensSellToAddToLiquidity = 500_000 ether;
@@ -266,6 +266,14 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         uniswapV2Pair = uniswapPairAddress;
     }
 
+    function removeAllFees() public onlyOwner {
+        _removeAllFees();
+    }
+
+    function restoreAllFees() public onlyOwner {
+        _restoreAllFees();
+    }
+
     //to recieve ETH from uniswapV2Router when swaping
     receive() external payable {}
 
@@ -336,7 +344,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         return _amount.mul(_marketingReward).div(10**2);
     }
 
-    function removeAllFees() public onlyOwner {
+    function _removeAllFees() private {
         if (_taxFee == 0 && _liquidityFee == 0 && _burnFee == 0 && _developersReward == 0 && _marketingReward == 0) return;
 
         _previousTaxFee = _taxFee;
@@ -352,7 +360,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         _marketingReward = 0;
     }
 
-    function restoreAllFees() public onlyOwner {
+    function _restoreAllFees() private {
         _taxFee = _previousTaxFee;
         _liquidityFee = _previousLiquidityFee;
         _burnFee = _previousBurnFee;
@@ -462,7 +470,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
 
     // this method is responsible for taking all fees, if takeFee is true
     function _tokenTransfer(address sender, address recipient, uint256 amount, bool takeFee) private {
-        if (!takeFee) removeAllFees();
+        if (!takeFee) _removeAllFees();
 
         (RVal memory r, TVal memory t) = _getValues(amount);
         _decreaseBalance(sender, t.amount, r.amount);
@@ -494,7 +502,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
             emit Transfer(sender, _marketingAddress, t.marketing);
         }
 
-        if (!takeFee) restoreAllFees();
+        if (!takeFee) _restoreAllFees();
     }
 
     function _increaseBalance(address account, uint256 tAmount, uint256 rAmount) private {
