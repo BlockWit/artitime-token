@@ -19,12 +19,11 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     mapping (address => mapping (address => uint256)) private _allowances;
 
     mapping (address => bool) private _isExcludedFromFee;
-
     mapping (address => bool) private _isExcluded;
     address[] private _excluded;
 
     uint256 private constant MAX = ~uint256(0);
-    uint256 private _tTotal = 1500000000 * 10**3 * 10**9;
+    uint256 private _tTotal = 1_000_000_000 ether;
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
 
@@ -32,22 +31,22 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     string private _symbol = "ARTI";
     uint8 private _decimals = 18;
 
-    uint256 public _taxFee = 3;
-    uint256 private _previousTaxFee = _taxFee;
+    uint256 public _taxFee;
+    uint256 private _previousTaxFee;
 
-    uint256 public _liquidityFee = 2;
-    uint256 private _previousLiquidityFee = _liquidityFee;
+    uint256 public _liquidityFee;
+    uint256 private _previousLiquidityFee;
 
-    uint256 public _burnFee = 1;
-    uint256 private _previousBurnFee = _burnFee;
+    uint256 public _burnFee;
+    uint256 private _previousBurnFee;
 
-    address public _developersAddress = address(0);
-    uint256 public _developersReward = 2;
-    uint256 private _previousDevelopersReward = _developersReward;
+    address public _developersAddress;
+    uint256 public _developersReward;
+    uint256 private _previousDevelopersReward;
 
-    address public _marketingAddress = address(0);
-    uint256 public _marketingReward = 2;
-    uint256 private _previousMarketingReward = _marketingReward;
+    address public _marketingAddress;
+    uint256 public _marketingReward;
+    uint256 private _previousMarketingReward;
 
     IUniswapV2Router02 public uniswapV2Router;
     address public uniswapV2Pair;
@@ -55,8 +54,8 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     bool inSwapAndLiquify;
     bool public swapAndLiquifyEnabled = true;
 
-    uint256 public _maxTxAmount = 5000000 * 10**3 * 10**9;
-    uint256 private numTokensSellToAddToLiquidity = 500000 * 10**3 * 10**9;
+    uint256 public _maxTxAmount = 5_000_000 ether;
+    uint256 private numTokensSellToAddToLiquidity = 500_000 ether;
 
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
     event SwapAndLiquifyEnabledUpdated(bool enabled);
@@ -75,7 +74,6 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     constructor() {
         _rOwned[_msgSender()] = _rTotal;
         emit Transfer(address(0), _msgSender(), _tTotal);
-        excludeFromReward(address(0));
         _isExcludedFromFee[address(this)] = true;
     }
 
@@ -167,6 +165,16 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         _tFeeTotal = _tFeeTotal.add(tAmount);
     }
 
+    function burn(address account, uint256 amount) public {
+        require(account != address(0), "ERC20: burn from the zero address");
+        require(_tOwned[account] >= amount, "ERC20: burn amount exceeds balance");
+        require(amount <= _maxTxAmount, "Burn amount exceeds the maxTxAmount");
+        (RVal memory r, TVal memory t) = _getValues(amount);
+        _decreaseBalance(account, t.amount, r.amount);
+        _decreaseTotalSupply(t.amount, r.amount);
+        emit Transfer(account, address(0), amount);
+    }
+
     function reflectionFromToken(uint256 tAmount, bool deductTransferFee) public view returns(uint256) {
         require(tAmount <= _tTotal, "Amount must be less than supply");
         (RVal memory r,) = _getValues(tAmount);
@@ -242,14 +250,20 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     }
 
     function setMaxTxPercent(uint256 maxTxPercent) external onlyOwner() {
-        _maxTxAmount = _tTotal.mul(maxTxPercent).div(
-            10**2
-        );
+        _maxTxAmount = _tTotal.mul(maxTxPercent).div(10**2);
     }
 
     function setSwapAndLiquifyEnabled(bool _enabled) public onlyOwner {
         swapAndLiquifyEnabled = _enabled;
         emit SwapAndLiquifyEnabledUpdated(_enabled);
+    }
+
+    function setUniswapRouter(address routerAddress) public onlyOwner {
+        uniswapV2Router = IUniswapV2Router02(routerAddress);
+    }
+
+    function setUniswapPair(address uniswapPairAddress) public onlyOwner {
+        uniswapV2Pair = uniswapPairAddress;
     }
 
     //to recieve ETH from uniswapV2Router when swaping
@@ -272,8 +286,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         t.burn = calculateBurnFee(tAmount);
         t.developers = calculateDevelopersReward(tAmount);
         t.marketing = calculateMarketingReward(tAmount);
-        t.transferAmount = tAmount.sub(t.fee).sub(t.liquidity).sub(t.burn).sub(t.developers).sub(t.marketing);
-        return t;
+        t.transferAmount = t.amount.sub(t.fee).sub(t.liquidity).sub(t.burn).sub(t.developers).sub(t.marketing);
     }
 
     function _getRValues(TVal memory t, uint256 currentRate) private pure returns (RVal memory r) {
@@ -284,7 +297,6 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         r.developers = t.developers.mul(currentRate);
         r.marketing = t.marketing.mul(currentRate);
         r.transferAmount = r.amount.sub(r.fee).sub(r.liquidity).sub(r.burn).sub(r.developers).sub(r.marketing);
-        return r;
     }
 
     function _getRate() private view returns(uint256) {
@@ -305,36 +317,26 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     }
 
     function calculateTaxFee(uint256 _amount) private view returns (uint256) {
-        return _amount.mul(_taxFee).div(
-            10**2
-        );
+        return _amount.mul(_taxFee).div(10**2);
     }
 
     function calculateLiquidityFee(uint256 _amount) private view returns (uint256) {
-        return _amount.mul(_liquidityFee).div(
-            10**2
-        );
+        return _amount.mul(_liquidityFee).div(10**2);
     }
 
     function calculateBurnFee(uint256 _amount) private view returns (uint256) {
-        return _amount.mul(_burnFee).div(
-            10**2
-        );
+        return _amount.mul(_burnFee).div(10**2);
     }
 
     function calculateDevelopersReward(uint256 _amount) private view returns (uint256) {
-        return _amount.mul(_developersReward).div(
-            10**2
-        );
+        return _amount.mul(_developersReward).div(10**2);
     }
 
     function calculateMarketingReward(uint256 _amount) private view returns (uint256) {
-        return _amount.mul(_marketingReward).div(
-            10**2
-        );
+        return _amount.mul(_marketingReward).div(10**2);
     }
 
-    function removeAllFees() private {
+    function removeAllFees() public onlyOwner {
         if (_taxFee == 0 && _liquidityFee == 0 && _burnFee == 0 && _developersReward == 0 && _marketingReward == 0) return;
 
         _previousTaxFee = _taxFee;
@@ -350,7 +352,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         _marketingReward = 0;
     }
 
-    function restoreAllFees() private {
+    function restoreAllFees() public onlyOwner {
         _taxFee = _previousTaxFee;
         _liquidityFee = _previousLiquidityFee;
         _burnFee = _previousBurnFee;
@@ -374,7 +376,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
         if (from != owner() && to != owner()) {
-            require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount.");
+            require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount");
         }
 
         // is the token balance of this contract address over the min number of
@@ -465,17 +467,32 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         (RVal memory r, TVal memory t) = _getValues(amount);
         _decreaseBalance(sender, t.amount, r.amount);
         _increaseBalance(recipient, t.transferAmount, r.transferAmount);
-        // rfi
-        _reflectFee(r.fee, t.fee);
-        // take liquidity
-        _increaseBalance(address(this), t.liquidity, r.liquidity);
-        // burn
-        _increaseBalance(address(0), t.burn, r.burn);
-        // developers reward
-        _increaseBalance(_developersAddress, t.developers, r.developers);
-        // marketing reward
-        _increaseBalance(_marketingAddress, t.marketing, r.marketing);
         emit Transfer(sender, recipient, t.transferAmount);
+
+        // rfi
+        if (t.fee > 0) {
+            _reflectFee(r.fee, t.fee);
+        }
+        // take liquidity
+        if (t.liquidity > 0) {
+            _increaseBalance(address(this), t.liquidity, r.liquidity);
+            emit Transfer(sender, address(this), t.liquidity);
+        }
+        // burn
+        if (t.burn > 0) {
+            _decreaseTotalSupply(t.burn, r.burn);
+            emit Transfer(sender, address(0), t.burn);
+        }
+        // developers reward
+        if (t.developers > 0) {
+            _increaseBalance(_developersAddress, t.developers, r.developers);
+            emit Transfer(sender, _developersAddress, t.developers);
+        }
+        // marketing reward
+        if (t.marketing > 0) {
+            _increaseBalance(_marketingAddress, t.marketing, r.marketing);
+            emit Transfer(sender, _marketingAddress, t.marketing);
+        }
 
         if (!takeFee) restoreAllFees();
     }
@@ -492,6 +509,11 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         if (_isExcluded[account]) {
             _tOwned[account] = _tOwned[account].sub(tAmount);
         }
+    }
+
+    function _decreaseTotalSupply(uint256 tAmount, uint256 rAmount) private {
+        _tTotal = _tTotal.sub(tAmount);
+        _rTotal = _rTotal.sub(rAmount);
     }
 
 }
