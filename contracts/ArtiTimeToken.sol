@@ -54,7 +54,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     bool inSwapAndLiquify;
     bool public swapAndLiquifyEnabled = true;
 
-    uint256 public _maxTxAmount = 5_000_000 ether;
+    uint256 public maxTxAmount = 5_000_000 ether;
     uint256 private numTokensSellToAddToLiquidity = 500_000 ether;
 
     event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
@@ -168,7 +168,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     function burn(address account, uint256 amount) public {
         require(account != address(0), "ERC20: burn from the zero address");
         require(_tOwned[account] >= amount, "ERC20: burn amount exceeds balance");
-        require(amount <= _maxTxAmount, "Burn amount exceeds the maxTxAmount");
+        require(amount <= maxTxAmount, "Burn amount exceeds the maxTxAmount");
         (RVal memory r, TVal memory t) = _getValues(amount);
         _decreaseBalance(account, t.amount, r.amount);
         _decreaseTotalSupply(t.amount, r.amount);
@@ -250,7 +250,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
     }
 
     function setMaxTxPercent(uint256 maxTxPercent) external onlyOwner() {
-        _maxTxAmount = _tTotal.mul(maxTxPercent).div(10**2);
+        maxTxAmount = _tTotal.mul(maxTxPercent).div(10**2);
     }
 
     function setSwapAndLiquifyEnabled(bool _enabled) public onlyOwner {
@@ -376,7 +376,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
         if (from != owner() && to != owner()) {
-            require(amount <= _maxTxAmount, "Transfer amount exceeds the maxTxAmount");
+            require(amount <= maxTxAmount, "Transfer amount exceeds the maxTxAmount");
         }
 
         // is the token balance of this contract address over the min number of
@@ -385,8 +385,8 @@ contract ArtiTimeToken is Context, IERC20, Ownable {
         // also, don't swap & liquify if sender is uniswap pair.
         uint256 contractTokenBalance = balanceOf(address(this));
 
-        if (contractTokenBalance >= _maxTxAmount) {
-            contractTokenBalance = _maxTxAmount;
+        if (contractTokenBalance >= maxTxAmount) {
+            contractTokenBalance = maxTxAmount;
         }
 
         bool overMinTokenBalance = contractTokenBalance >= numTokensSellToAddToLiquidity;
