@@ -303,7 +303,8 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
         r = _getRValues(t, _getRate());
     }
 
-    function _getTValues(uint256 tAmount) private view returns (TVal memory t) {
+    function _getTValues(uint256 tAmount) private view returns (TVal memory) {
+        TVal memory t;
         t.amount = tAmount;
         t.fee = calculateTaxFee(tAmount);
         t.liquidity = calculateLiquidityFee(tAmount);
@@ -311,9 +312,11 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
         t.developers = calculateDevelopersReward(tAmount);
         t.marketing = calculateMarketingReward(tAmount);
         t.transferAmount = t.amount.sub(t.fee).sub(t.liquidity).sub(t.burn).sub(t.developers).sub(t.marketing);
+        return t;
     }
 
-    function _getRValues(TVal memory t, uint256 currentRate) private pure returns (RVal memory r) {
+    function _getRValues(TVal memory t, uint256 currentRate) private pure returns (RVal memory) {
+        RVal memory r;
         r.amount = t.amount.mul(currentRate);
         r.fee = t.fee.mul(currentRate);
         r.liquidity = t.liquidity.mul(currentRate);
@@ -321,6 +324,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
         r.developers = t.developers.mul(currentRate);
         r.marketing = t.marketing.mul(currentRate);
         r.transferAmount = r.amount.sub(r.fee).sub(r.liquidity).sub(r.burn).sub(r.developers).sub(r.marketing);
+        return r;
     }
 
     function _getRate() private view returns(uint256) {
@@ -421,7 +425,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
 
         bool takeFee;
 
-        if (!_isExcludedFromFee[from] && _isExcludedFromFee[to]){
+        if (!_isExcludedFromFee[from] && !_isExcludedFromFee[to]){
             takeFee = true;
         }
 
