@@ -1,5 +1,7 @@
 const { time } = require('@openzeppelin/test-helpers');
 const { toBN } = require('web3-utils');
+const {contract} = require("@openzeppelin/test-environment");
+
 // This decodes logs for a single event type, and returns a decoded object in
 // the same form truffle-contract uses on its receipts
 // This function is a part of '@openzeppelin/test-helpers'
@@ -83,8 +85,19 @@ async function getEvents (txHash, emitter, eventName, web3) {
   return decodeLogs(receipt.logs, emitter, eventName, web3);
 }
 
+/**
+ *
+ * @param artifact path to artifact
+ * @returns {object} contract
+ */
+function fromArtifact(artifact) {
+  const { abi, bytecode } = require(artifact);
+  return contract.fromABI(abi, bytecode);
+}
+
 
 module.exports = {
+  fromArtifact,
   getEvents,
   getTransactionCost,
   dateFromNow,

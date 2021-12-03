@@ -1,20 +1,15 @@
-const { accounts, contract, web3} = require('@openzeppelin/test-environment');
-const { BN, constants, ether, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
-const { expect } = require('chai');
-const {getEvents} = require("./util");
+const { accounts, contract } = require('@openzeppelin/test-environment')
+const { BN, constants, ether, time } = require('@openzeppelin/test-helpers');
+const {fromArtifact, getEvents} = require("./util");
 
 const ArtiTimeToken = contract.fromArtifact('ArtiTimeToken');
 const WETH = contract.fromArtifact('canonical-weth/WETH9');
-const UniswapFactoryMock = contract.fromArtifact('UniswapV2FactoryMock');
-const UniswapRouterMock = contract.fromArtifact('UniswapV2RouterMock');
-const UniswapPairMock = contract.fromArtifact('UniswapV2PairMock');
+const UniswapFactory = fromArtifact("@uniswap/v2-core/build/UniswapV2Factory.json");
+const UniswapRouter = fromArtifact("@uniswap/v2-periphery/build/UniswapV2Router02.json");
+const UniswapPairMock = fromArtifact("@uniswap/v2-core/build/UniswapV2Pair.json");
 
-const [uniswapOwner, owner, account1, account2, account3, developers, marketing] = accounts;
-const SUPPLY1 = ether('400000000');
-const SUPPLY2 = ether('250000000');
-const SUPPLY3 = ether('210000000');
-const initialAccounts = [account1, account2, account3];
-const initialBalances = [SUPPLY1, SUPPLY2, SUPPLY3];
+const [uniswapOwner, owner] = accounts;
+
 const FEES = {
   BURN: 1,
   DEVELOPERS: 2,
@@ -31,21 +26,25 @@ describe('Token', async function () {
   let uniswapRouter;
   let uniswapPair;
 
-  beforeEach(async function() {
+  beforeEach(async () => {
     // configure
     token = await ArtiTimeToken.new({from: owner});
     weth = await WETH.new({from: owner});
-    uniswapFactory = await UniswapFactoryMock.new(uniswapOwner, {from: uniswapOwner});
-    uniswapRouter = await UniswapRouterMock.new(uniswapFactory.address, weth.address, {from: uniswapOwner});
-    await uniswapFactory.createPair(token.address, weth.address);
+    uniswapFactory = await UniswapFactory.new(uniswapOwner, {from: uniswapOwner});
+    uniswapRouter = await UniswapRouter.new(uniswapFactory.address, weth.address, {from: uniswapOwner});
+    await uniswapFactory.createPair(token.address, weth.address, {from: owner});
     uniswapPair = await UniswapPairMock.at(await uniswapFactory.getPair(token.address, weth.address));
     // provide liquidity
-  })
+    const liquidity = ether('3000000');
+    const value = ether('60');
+    const deadline = (await time.latest()).addn(300);
+    await token.approve(uniswapRouter.address, liquidity, {from: owner});
+    await uniswapRouter.addLiquidityETH(token.address, liquidity, liquidity, value, owner, deadline, {from: owner, value})
+  });
 
-    it('yolo', async function() {
-      console.log(await uniswapPair.totalSupply());
-    });
-
+  it('yolo', async function() {
+    console.log((await uniswapPair.totalSupply()).toString());
+  });
 
 });
 
