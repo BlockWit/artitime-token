@@ -61,6 +61,20 @@ module.exports = {
     // },
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
+    bscmainnet: {
+      provider: () => new HDWalletProvider(ETH_MAIN_PRIVATE_KEYS, `https://bsc-dataseed.binance.org`),
+      network_id: 56,
+      gasPrice: 5000000000,  // 5 Gwei
+      confirmations: 2,
+      timeoutBlocks: 200,
+    },
+    bsctestnet: {
+      provider: () => new HDWalletProvider(ETH_TEST_MNEMONIC, `https://data-seed-prebsc-1-s1.binance.org:8545`),
+      network_id: 97,
+      gasPrice: 18000000000,  // 18 Gwei
+      confirmations: 2,
+      timeoutBlocks: 200,
+    },
     mainnet: {
       provider: () => new HDWalletProvider(ETH_MAIN_PRIVATE_KEYS, `https://mainnet.infura.io/v3/${CONFIG.INFURA_KEY}`),
       network_id: 1,
@@ -84,12 +98,6 @@ module.exports = {
       timeoutBlocks: 200,   // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true      // Skip dry run before migrations? (default: false for public nets )
     },
-    // Useful for private networks
-    // private: {
-    // provider: () => new HDWalletProvider(mnemonic, `https://network.io`),
-    // network_id: 2111,   // This network is yours, in the cloud.
-    // production: true    // Treats this network as if it was a public net. (default: false)
-    // }
   },
 
   // Set default mocha options here, use special reporters etc.
@@ -100,7 +108,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.8.0",    // Fetch exact version from solc-bin (default: truffle's version)
+      version: "pragma",    // Fetch exact version from solc-bin (default: truffle's version)
       // docker: true,        // Use "0.5.1" you've installed locally with docker (default: false)
       settings: {          // See the solidity docs for advice about optimization and evmVersion
        optimizer: {
@@ -113,11 +121,13 @@ module.exports = {
   },
 
   plugins: [
-    'truffle-plugin-verify'
+    'truffle-plugin-verify',
+    'truffle-plugin-stdjsonin'
   ],
 
   api_keys: {
-    etherscan: CONFIG.ETHERSCAN_KEY
+    etherscan: CONFIG.ETHERSCAN_KEY,
+    bscscan: CONFIG.BSCSCAN_KEY
   }
 
   // Truffle DB is currently disabled by default; to enable it, change enabled:
