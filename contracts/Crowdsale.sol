@@ -61,7 +61,7 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
     }
 
     function addBalances(uint256 stageIndex, address[] calldata addresses, uint256[] calldata amounts) public onlyOwner {
-        require(addresses.length == amounts.length, "CommonSale: incorrect array length");
+        require(addresses.length == amounts.length, "Crowdsale: incorrect array length");
         for (uint256 i = 0; i < addresses.length; i++) {
             Balance storage balance = balances[stageIndex][addresses[i]];
             balance.initial = balance.initial.add(amounts[i]);
@@ -78,8 +78,8 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
 
     function finalizeStage(uint256 stageIndex) public onlyOwner {
         Stage storage stage = stages[stageIndex];
-        require(!stage.finished, "CommonSale. The stage has already been finalized");
-        require(stage.end >= block.timestamp, "CommonSale. The stage has not been finished yet");
+        require(!stage.finished, "Crowdsale. The stage has already been finalized");
+        require(stage.end >= block.timestamp, "Crowdsale. The stage has not been finished yet");
         uint256 tokensToBurn;
         if (stage.tokensSold < stage.softcapInTokens) {
             tokensToBurn = stage.hardcapInTokens;
@@ -122,7 +122,7 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
             balance.withdrawn = balance.withdrawn.add(vestedAmount);
             tokens = tokens.add(vestedAmount);
         }
-        require(tokens > 0, "CommonSale: No tokens available for withdrawal");
+        require(tokens > 0, "Crowdsale: No tokens available for withdrawal");
         token.transfer(msg.sender, tokens);
         emit Withdrawal(msg.sender, tokens);
         return tokens;
@@ -141,7 +141,7 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
                 investment = investment.add(diff);
             }
         }
-        require(investment > 0, "CommonSale. Nothing to refund");
+        require(investment > 0, "Crowdsale. Nothing to refund");
         payable(msg.sender).transfer(investment);
         return investment;
     }
@@ -189,20 +189,20 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
         uint256 stageIndex;
         {
             int256 index = getCurrentStage();
-            require(index >= 0, "CommonSale: No suitable stage found");
+            require(index >= 0, "Crowdsale: No suitable stage found");
             stageIndex = uint256(index);
         }
         Stage storage stage = stages[stageIndex];
         // check the condition of the current and previous stages
-        require(!stage.finished, "CommonSale: Stage is finalized");
+        require(!stage.finished, "Crowdsale: Stage is finalized");
         if (stageIndex > 0) {
             Stage memory prevStage = stages[stageIndex - 1];
-            require(prevStage.tokensSold >= prevStage.softcapInTokens, "CommonSale: The previous stage did not collect the required amount");
+            require(prevStage.tokensSold >= prevStage.softcapInTokens, "Crowdsale: The previous stage did not collect the required amount");
         }
         // check min investment limit
-        require(msg.value >= stage.minInvestmentLimit, "CommonSale: The amount of ETH you sent is too small");
+        require(msg.value >= stage.minInvestmentLimit, "Crowdsale: The amount of ETH you sent is too small");
         (uint256 tokens, uint256 investment) = calculateInvestmentAmounts(stage);
-        require(tokens > 0, "CommonSale: No tokens available for purchase");
+        require(tokens > 0, "Crowdsale: No tokens available for purchase");
         uint256 change = msg.value.sub(investment);
         // update stats
         invested = invested.add(investment);
