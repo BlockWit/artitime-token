@@ -65,6 +65,7 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
         for (uint256 i = 0; i < addresses.length; i++) {
             Balance storage balance = balances[stageIndex][addresses[i]];
             balance.initial = balance.initial.add(amounts[i]);
+            stages[stageIndex].tokensSold = stages[stageIndex].tokensSold.add(amounts[i]);
         }
     }
 
