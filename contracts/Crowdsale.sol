@@ -80,7 +80,7 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
     function finalizeStage(uint256 stageIndex) public onlyOwner {
         Stage storage stage = stages[stageIndex];
         require(!stage.finished, "Crowdsale. The stage has already been finalized");
-        require(stage.end >= block.timestamp, "Crowdsale. The stage has not been finished yet");
+        require(stage.end >= block.timestamp, "Crowdsale. The stage is not yet finished");
         uint256 tokensToBurn;
         if (stage.tokensSold < stage.softcapInTokens) {
             tokensToBurn = stage.hardcapInTokens;
