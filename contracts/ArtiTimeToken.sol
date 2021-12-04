@@ -20,6 +20,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
     mapping (address => mapping (address => uint256)) private _allowances;
 
     mapping (address => bool) private _isExcludedFromFee;
+    mapping (address => bool) private _isExcludedFromMaxTxLimit;
     mapping (address => bool) private _isExcluded;
     address[] private _excluded;
 
@@ -234,6 +235,14 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
         _isExcludedFromFee[account] = false;
     }
 
+    function excludeFromMaxTxLimit(address account) public onlyOwner {
+        _isExcludedFromMaxTxLimit[account] = true;
+    }
+
+    function includeInMaxTxLimit(address account) public onlyOwner {
+        _isExcludedFromMaxTxLimit[account] = false;
+    }
+
     function setTaxFeePercent(uint256 taxFee) external onlyOwner() {
         _taxFee = taxFee;
     }
@@ -410,7 +419,7 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
         require(amount > 0, "Transfer amount must be greater than zero");
-        if (from != owner() && to != owner()) {
+        if (!_isExcludedFromMaxTxLimit[from] && !_isExcludedFromMaxTxLimit[to]) {
             require(amount <= maxTxAmount, "Transfer amount exceeds the maxTxAmount");
         }
 
