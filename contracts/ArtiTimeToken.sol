@@ -52,14 +52,16 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
     IUniswapV2Router02 public uniswapV2Router;
     address public uniswapV2Pair;
 
-    bool inSwapAndLiquify;
-    bool public swapAndLiquifyEnabled;
+    bool private isInSwapAndLiquify;
+    bool public isSwapAndLiquifyEnabled;
 
     uint256 public maxTxAmount = 5_000_000 ether;
-    uint256 private numTokensSellToAddToLiquidity = 500_000 ether;
+    uint256 public liquidityThreshold = 500_000 ether;
 
-    event MinTokensBeforeSwapUpdated(uint256 minTokensBeforeSwap);
-    event SwapAndLiquifyEnabledUpdated(bool enabled);
+    event LiquidityThresholdUpdated(uint256 newLiquidityThreshold);
+
+    event SwapAndLiquifyToggled(bool newValue);
+
     event SwapAndLiquify(
         uint256 tokensSwapped,
         uint256 ethReceived,
@@ -67,9 +69,9 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
     );
 
     modifier lockTheSwap {
-        inSwapAndLiquify = true;
+        isInSwapAndLiquify = true;
         _;
-        inSwapAndLiquify = false;
+        isInSwapAndLiquify = false;
     }
 
     constructor() {
@@ -264,9 +266,14 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
         maxTxAmount = _tTotal.mul(maxTxPercent).div(10**2);
     }
 
-    function setSwapAndLiquifyEnabled(bool _enabled) public onlyOwner {
-        swapAndLiquifyEnabled = _enabled;
-        emit SwapAndLiquifyEnabledUpdated(_enabled);
+    function setLiquidityThreshold(uint256 newLiquidityThreshold) external onlyOwner {
+        liquidityThreshold = newLiquidityThreshold;
+        emit LiquidityThresholdUpdated(newLiquidityThreshold);
+    }
+
+    function toggleSwapAndLiquify() public onlyOwner {
+        isSwapAndLiquifyEnabled = !isSwapAndLiquifyEnabled;
+        emit SwapAndLiquifyToggled(isSwapAndLiquifyEnabled);
     }
 
     function setUniswapRouter(address routerAddress) public onlyOwner {
@@ -417,9 +424,9 @@ contract ArtiTimeToken is Context, IERC20, Ownable, RecoverableFunds {
             contractTokenBalance = maxTxAmount;
         }
 
-        bool overMinTokenBalance = contractTokenBalance >= numTokensSellToAddToLiquidity;
-        if (overMinTokenBalance && !inSwapAndLiquify && from != uniswapV2Pair && swapAndLiquifyEnabled) {
-            contractTokenBalance = numTokensSellToAddToLiquidity;
+        bool overMinTokenBalance = contractTokenBalance >= liquidityThreshold;
+        if (overMinTokenBalance && !isInSwapAndLiquify && from != uniswapV2Pair && isSwapAndLiquifyEnabled) {
+            contractTokenBalance = liquidityThreshold;
             swapAndLiquify(contractTokenBalance);
         }
 
