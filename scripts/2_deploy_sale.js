@@ -7,11 +7,12 @@ const CONFIG = {
   BASE_PRICE: ether('55000'),
   STAGE1_START: 0,
   STAGE1_END: 0,
-  STAGE1_BONUS: 5,
+  STAGE1_BONUS: 10,
   STAGE1_SOFTCAP: ether('6050000'),
   STAGE1_HARDCAP: ether('30250000'),
   STAGE2_START: 0,
   STAGE2_END: 0,
+  STAGE2_BONUS: 5,
   STAGE2_SOFTCAP: ether('5775000'),
   STAGE2_HARDCAP: ether('57750000'),
   PUBLIC_SALE_END: 0
@@ -62,7 +63,7 @@ async function deploy () {
   }
   {
     log(`Add stage 2`);
-    const tx = await sale.addStage(CONFIG.STAGE2_START, CONFIG.STAGE2_END, 0, 0, 0, 0, CONFIG.STAGE2_SOFTCAP, CONFIG.STAGE2_HARDCAP, 1, false, {from: owner});
+    const tx = await sale.addStage(CONFIG.STAGE2_START, CONFIG.STAGE2_END, CONFIG.STAGE2_BONUS, 0, 0, 0, CONFIG.STAGE2_SOFTCAP, CONFIG.STAGE2_HARDCAP, 1, false, {from: owner});
     log(`Result: successful tx: @tx{${tx.receipt.transactionHash}}`);
   }
   {
