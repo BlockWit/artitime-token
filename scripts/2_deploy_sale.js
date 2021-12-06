@@ -29,14 +29,16 @@ async function deploy () {
 
   const sale = await Crowdsale.new({ from: owner });
   log(`Crowdsale deployed at address: @address{${sale.address}}`);
-  log(`npx truffle verify Crowdsale@${sale.address} --network ${network}`);
+  log(`npx truffle run verify Crowdsale@${sale.address} --network ${network}`);
 
-  log('ATTENTION! USING TEST DATES!')
+  log('ATTENTION! USING TEST VALUES!')
   CONFIG.STAGE1_START = new BN(Math.floor(Date.now() / 1000).toString());
-  CONFIG.STAGE1_END = CONFIG.STAGE1_START.add(time.duration.days(7));
-  CONFIG.STAGE2_START = CONFIG.STAGE1_END.add(time.duration.days(1));
-  CONFIG.STAGE2_END = CONFIG.STAGE2_START.add(time.duration.days(7));
-  CONFIG.PUBLIC_SALE_END = CONFIG.STAGE2_END.add(time.duration.weeks(4));
+  CONFIG.STAGE1_END = CONFIG.STAGE1_START.add(time.duration.minutes(10));
+  CONFIG.STAGE1_SOFTCAP = ether('0.605');
+  CONFIG.STAGE2_START = CONFIG.STAGE1_END.add(time.duration.minutes(5));
+  CONFIG.STAGE2_END = CONFIG.STAGE2_START.add(time.duration.minutes(10));
+  CONFIG.STAGE2_SOFTCAP = ether('0.5775');
+  CONFIG.PUBLIC_SALE_END = CONFIG.STAGE2_END.add(time.duration.minutes(10));
 
   {
     log(`Set token`);

@@ -10,7 +10,7 @@ async function deploy () {
   log(`Deploy token`);
   const token = await Token.new({ from: owner });
   log(`Token deployed at address: @address{${token.address}}`);
-  log(`npx truffle verify ArtiTimeToken@${token.address} --network ${network}`);
+  log(`npx truffle run verify ArtiTimeToken@${token.address} --network ${network}`);
 
   {
     log(`Disable tx limit for owner`);
