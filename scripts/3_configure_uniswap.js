@@ -31,6 +31,11 @@ async function deploy () {
     log(`Result: successful tx: @tx{${tx.receipt.transactionHash}}`);
   }
   {
+    log(`Exclude Uniswap Pair from rewards`);
+    const tx = await token.excludeFromReward(ADDRESSES.PAIR, {from: owner});
+    log(`Result: successful tx: @tx{${tx.receipt.transactionHash}}`);
+  }
+  {
     log(`Turn on Swap and Liquify function`);
     const tx = await token.toggleSwapAndLiquify({from: owner});
     log(`Result: successful tx: @tx{${tx.receipt.transactionHash}}`);
