@@ -21,14 +21,17 @@ async function deploy () {
   }
 
   {
+    log(`Set Uniswap router address`);
     const tx = await token.setUniswapRouter(ADDRESSES.ROUTER, {from: owner});
     log(`Result: successful tx: @tx{${tx.receipt.transactionHash}}`);
   }
   {
+    log(`Set Uniswap Pair address`);
     const tx = await token.setUniswapPair(ADDRESSES.PAIR, {from: owner});
     log(`Result: successful tx: @tx{${tx.receipt.transactionHash}}`);
   }
   {
+    log(`Turn on Swap and Liquify function`);
     const tx = await token.toggleSwapAndLiquify({from: owner});
     log(`Result: successful tx: @tx{${tx.receipt.transactionHash}}`);
   }
