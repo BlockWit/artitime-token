@@ -46,6 +46,34 @@ describe('Crowdsale', async function () {
   });
 
   describe('payable', () => {
+    it('should not accept ETH if user not on whitelist', async function () {
+      await sale.toggleWhitelist({from: owner});
+      await time.increaseTo(CONFIG.STAGE1_START);
+      await expectRevert(sale.sendTransaction({ value: ether('1'), from: buyer }), 'Crowdsale: You are not on the white list');
+    });
+
+    it('should accept ETH if user is whitelisted', async function () {
+      await sale.toggleWhitelist({from: owner});
+      await sale.addToWhitelist([buyer], {from: owner})
+      await time.increaseTo(CONFIG.STAGE1_START);
+      const etherSent = ether('1.23');
+      await sale.sendTransaction({value: etherSent, from: buyer});
+      const tokensReserved = (await sale.getAccountInfo(buyer)).initial;
+      expect(tokensReserved).to.be.bignumber.equal(etherSent.mul(CONFIG.BASE_PRICE).div(ether('1')));
+    });
+
+    it('should not accept ETH if user was removed from the whitelist', async function () {
+      await sale.toggleWhitelist({from: owner});
+      await sale.addToWhitelist([buyer], {from: owner})
+      await time.increaseTo(CONFIG.STAGE1_START);
+      const etherSent = ether('1.23');
+      await sale.sendTransaction({value: etherSent, from: buyer});
+      const tokensReserved = (await sale.getAccountInfo(buyer)).initial;
+      expect(tokensReserved).to.be.bignumber.equal(etherSent.mul(CONFIG.BASE_PRICE).div(ether('1')));
+      await sale.removeFromWhitelist([buyer], {from: owner})
+      await expectRevert(sale.sendTransaction({ value: ether('1'), from: buyer }), 'Crowdsale: You are not on the white list');
+    });
+
     it('should not accept ETH before crowdsale start', async function () {
       await expectRevert(sale.sendTransaction({ value: ether('1'), from: buyer }), 'Crowdsale: No suitable stage found');
     });
@@ -101,8 +129,8 @@ describe('Crowdsale', async function () {
 
     it('should not accept ETH if the previous stage has not reached softcap', async function () {
       await time.increaseTo(CONFIG.STAGE1_START);
-      await sale.finalizeStage(0, {from: owner});
       await time.increaseTo(CONFIG.STAGE2_START);
+      await sale.finalizeStage(0, {from: owner});
       await expectRevert(sale.sendTransaction({ value: ether('1'), from: buyer }), 'Crowdsale: The previous stage did not collect the required amount');
     });
 

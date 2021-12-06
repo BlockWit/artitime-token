@@ -37,9 +37,11 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
     uint256 public price; // amount of tokens per 1 ETH
     uint256 public invested;
     uint256 public percentRate = 100;
+    bool public isWhitelistActive;
 
     mapping(uint256 => mapping(address => Balance)) public balances;
     mapping(uint8 => VestingSchedule) public vestingSchedules;
+    mapping(address => bool) public whitelist;
 
     function setToken(address newTokenAddress) public onlyOwner {
         token = IERC20Cutted(newTokenAddress);
@@ -75,6 +77,22 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
 
     function unpause() public onlyOwner {
         _unpause();
+    }
+
+    function toggleWhitelist() public onlyOwner {
+        isWhitelistActive = !isWhitelistActive;
+    }
+
+    function addToWhitelist(address[] calldata addresses) public onlyOwner {
+        for (uint256 i = 0; i < addresses.length; i++) {
+            whitelist[addresses[i]] = true;
+        }
+    }
+
+    function removeFromWhitelist(address[] calldata addresses) public onlyOwner {
+        for (uint256 i = 0; i < addresses.length; i++) {
+            whitelist[addresses[i]] = false;
+        }
     }
 
     function finalizeStage(uint256 stageIndex) public onlyOwner {
@@ -187,6 +205,9 @@ contract Crowdsale is Pausable, StagedCrowdsale, RecoverableFunds {
     }
 
     function internalFallback() internal whenNotPaused returns (uint256) {
+        if (isWhitelistActive) {
+            require(whitelist[msg.sender], "Crowdsale: You are not on the white list");
+        }
         uint256 stageIndex;
         {
             int256 index = getCurrentStage();
