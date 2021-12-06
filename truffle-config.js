@@ -121,8 +121,7 @@ module.exports = {
   },
 
   plugins: [
-    'truffle-plugin-verify',
-    'truffle-plugin-stdjsonin'
+    'truffle-plugin-verify'
   ],
 
   api_keys: {
