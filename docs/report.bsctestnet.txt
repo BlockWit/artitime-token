@@ -1,0 +1,56 @@
+Deploy token
+Token deployed at address: https://testnet.bscscan.com/address/0x31c66eEB85db29A65C8e9D0E9562adb5eff7Fd08
+npx truffle run verify ArtiTimeToken@0x31c66eEB85db29A65C8e9D0E9562adb5eff7Fd08 --network private
+Disable tx limit for owner
+Result: successful tx: https://testnet.bscscan.com/tx/0x1675fc75d93842a53c3929e5434cc71d94d3697ccd05ed4ec5710c5888d691cb
+Crowdsale deployed at address: https://testnet.bscscan.com/address/0xE4AB756c5F9AF0bE93bd8b990d779be9D5029ced
+npx truffle run verify Crowdsale@0xE4AB756c5F9AF0bE93bd8b990d779be9D5029ced --network private
+ATTENTION! USING TEST VALUES!
+Set token
+Result: successful tx: https://testnet.bscscan.com/tx/0x4a179f5a84c651f7f7e72ab84d43c8c11a599072e46213a3ff374e0d6833dfcb
+Set price
+Result: successful tx: https://testnet.bscscan.com/tx/0x4d55b3228885187054420bddef3476a98b511cf8b78159d0a0356eeb611a7224
+Set vesting schedule
+Result: successful tx: https://testnet.bscscan.com/tx/0xb80bfbe9883dbcce3495e0d2b4c79b016ebe87e2a9b1d3c0c26b7571156cb8c8
+Add stage 1
+Result: successful tx: https://testnet.bscscan.com/tx/0x319086a385309d9a2df3aa5278e0daa2466715130c31b8a8d0732a3dcf5aa9bd
+Add stage 2
+Result: successful tx: https://testnet.bscscan.com/tx/0xbd55fe2c39206689d6085f35776c5f96e635f7799ea6f2ebf4b67f11b1859bf5
+Transfer 88000000000000000000000000 to sale address
+Result: successful tx: https://testnet.bscscan.com/tx/0x09554f28ca75acc32acee6b826355c0e53b98bbd20ca0633446a00b67af09029
+Disable tx limit for sale contract
+Result: successful tx: https://testnet.bscscan.com/tx/0x7c0aa70dd99552cfe827476c42736143a884dd291af8c0b7e0fefc7503928596
+Current stage: 0
+Send 605000000000000000 to sale contract
+Result: successful tx: https://testnet.bscscan.com/tx/0xe6ababc18ed63f4de08f6c55e6adab7fb2f1baa1a118920330742adc8c169a7d
+Current stage: -1 (no active stages found)
+Send 605000000000000000 to sale contract
+Reslut: reverted tx: https://testnet.bscscan.com/tx/0x70274eb7881b7a14f76a3eea0d704c2349bb280a4dd8ad0ea9f1aac79db0917a
+Current stage: 1
+Send 605000000000000000 to sale contract
+Result: successful tx: https://testnet.bscscan.com/tx/0xfde013c36541fa93d435229c0ffd7bf37f4f7ee932f0b86f0821881c877fb9f3
+Finalize stage 0
+Result: successful tx: https://testnet.bscscan.com/tx/0x286af7016cd4c61d9d43c9d6c3dc9f987257b2081e0107016a7b0f5d823ceb2a
+Finalize stage 1
+Result: successful tx: https://testnet.bscscan.com/tx/0xb9d908d83aedd0a1e7b69a1b5f647a18d873a9d2edda47d44a09749f6b710b70
+Withdraw ahead of vesting schedule
+Result: reverted tx with reason: Crowdsale: No tokens available for withdrawal
+Withdraw
+Result: successful tx: https://testnet.bscscan.com/tx/0x05bb8104d6765a99ef3c7d3a552de03be01107952009019ffc859f3119b1bb10
+ATTENTION! USING TEST ADDRESSES!
+Set Tax Fee to 3
+Result: successful tx: https://testnet.bscscan.com/tx/0xf706a870b1a88d228a011d17effe09d97c4c1d4c2ffce9d757d915d7cb0db557
+Set Liquidity Fee to 2
+Result: successful tx: https://testnet.bscscan.com/tx/0xee267c86e50ed74dbaec0d542dea69fc1c3a3c16f4d8181c0d76aaee28d0bd7f
+Set Burn Fee to 1
+Result: successful tx: https://testnet.bscscan.com/tx/0xab04391463fba02afec0658ff3a1f72c0e5d4f5eb38bd476ac514a6fb3194afb
+Set Developers reward to 2
+Result: successful tx: https://testnet.bscscan.com/tx/0x851d6b0c91dcf796aa783dc1e8b903ee7a9ae4a219a51848efa600948193fed8
+Set Marketing reward to 2
+Result: successful tx: https://testnet.bscscan.com/tx/0x78805930a4ace0d4dd1c12a20882d42da557ae6c158e3322fa09a3cbd87d4b8e
+Set Developers address to 0xAdF3bFAcf63b401163FFbf1040B97C6d024c3c9A
+Result: successful tx: https://testnet.bscscan.com/tx/0x6d8f14f669cfcd38b1315f8898f9a0f87d30b978bb620d68e9edaec548577bcb
+Set Marketing address to 0xe528bD9B1c6F8DAFCf93A93b51f6d3457840aA7c
+Result: successful tx: https://testnet.bscscan.com/tx/0x3929022724eabfb1785354127e5c665188ef4c522acb3f1b207669cc02452f72
+Send 1000 tokens
+Result: successful tx: https://testnet.bscscan.com/tx/0xacb4a278a06719903efb06e3c7a6ffb68b9042e1ee577dab9930fdc14c12888d
