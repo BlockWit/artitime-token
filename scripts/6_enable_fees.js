@@ -22,7 +22,7 @@ async function deploy () {
   const token = await Token.at(TOKEN_ADDRESS);
 
   const { log } = logger(await web3.eth.net.getNetworkType());
-  const [owner, developers, marketing] = await web3.eth.getAccounts();
+  const [owner, buyer, developers, marketing] = await web3.eth.getAccounts();
 
   log('ATTENTION! USING TEST ADDRESSES!')
   ADDRESSES.DEVELOPERS = developers;
